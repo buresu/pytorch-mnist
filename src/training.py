@@ -49,7 +49,8 @@ if __name__ == "__main__":
 
     # define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, nesterov=True)
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, nesterov=True)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma = 0.99)
 
     epochs = 10
 
