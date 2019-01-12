@@ -44,6 +44,9 @@ if __name__ == "__main__":
     # model
     model = Net()
 
+    if torch.cuda.is_available():
+        model.cuda()
+
     # define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, nesterov=True)
@@ -54,6 +57,9 @@ if __name__ == "__main__":
     for epoch in range(epochs):
         running_loss = 0.0
         for i, (inputs, labels) in enumerate(trainloader, 0):
+
+            if torch.cuda.is_available():
+                inputs, labels = inputs.cuda(), labels.cuda()
             
             # zero the parameter gradients
             optimizer.zero_grad()
@@ -79,6 +85,10 @@ if __name__ == "__main__":
     total = 0
     with torch.no_grad():
         for (images, labels) in testloader:
+
+            if torch.cuda.is_available():
+                images, labels = images.cuda(), labels.cuda()
+
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
