@@ -8,6 +8,24 @@ import numpy as np
 from model.net import Net
 
 
+def evaluate(loader, model, epoch):
+
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for (images, labels) in loader:
+
+            if torch.cuda.is_available():
+                images, labels = images.cuda(), labels.cuda()
+
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+        accuracy = float(correct/total)
+        print('Epoch: {:d} Accuracy: {:.2f} %'.format(epoch, 100 * accuracy))
+        torch.save(model.state_dict(), './model/test_{:d}epoch_{:.2f}%.model'.format(epoch, 100 * accuracy))
+
 if __name__ == "__main__":
     
     transform = transforms.Compose(
@@ -53,6 +71,8 @@ if __name__ == "__main__":
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma = 0.99)
 
     epochs = 10
+    every_eval = 10
+    min_eval = 10
 
     # training
     for epoch in range(epochs):
@@ -77,21 +97,9 @@ if __name__ == "__main__":
                 print('[{:d}, {:5d}] loss: {:.3f}'.format(epoch + 1, i + 1, running_loss / 100))
                 running_loss = 0.0
 
+        if (epoch + 1) % every_eval == 0 and (epoch + 1) >= min_eval:
+            evaluate(testloader, model, epoch + 1)
+
     print('Training Finished')
 
-    torch.save(model.state_dict(), './model/test.model')
-
-    # test
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for (images, labels) in testloader:
-
-            if torch.cuda.is_available():
-                images, labels = images.cuda(), labels.cuda()
-
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-        print('Accuracy: {:.2f} %'.format(100 * float(correct/total)))
+    evaluate(testloader, model, epochs)
