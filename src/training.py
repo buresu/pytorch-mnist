@@ -97,6 +97,8 @@ if __name__ == "__main__":
                 print('[{:d}, {:5d}] loss: {:.3f}'.format(epoch + 1, i + 1, running_loss / 100))
                 running_loss = 0.0
 
+        scheduler.step()
+
         if (epoch + 1) % every_eval == 0 and (epoch + 1) >= min_eval:
             evaluate(testloader, model, epoch + 1)
 
