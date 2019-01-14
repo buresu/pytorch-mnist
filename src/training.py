@@ -66,13 +66,13 @@ if __name__ == "__main__":
     # model
     model = Net()
 
-    if torch.cuda.is_available():
-        model.cuda()
-
     # teansorboad
     writer = SummaryWriter()
     x, y = next(iter(trainloader))
     writer.add_graph(model, x)
+
+    if torch.cuda.is_available():
+        model.cuda()
 
     # define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
